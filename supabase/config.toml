@@ -1,0 +1,4 @@
+project_id = "flbofahkdtzfhsgehntt"
+
+[functions.ingest-metrics]
+verify_jwt = false
