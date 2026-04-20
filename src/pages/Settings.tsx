@@ -76,7 +76,16 @@ const Settings = () => {
     toast.success(label);
   };
 
-  const installOneLiner = (token: string) =>
+  const REPO_URL = "https://github.com/Willytecheira/server-guardian-pro.git";
+
+  const gitInstall = (token: string) =>
+    `sudo git clone ${REPO_URL} /opt/server-guardian
+cd /opt/server-guardian/agent
+sudo MONITOR_TOKEN=${token} ./install.sh`;
+
+  const updateCommand = `cd /opt/server-guardian && sudo git pull && sudo systemctl restart server-guardian`;
+
+  const curlInstall = (token: string) =>
     `curl -fsSL "${INSTALLER_URL}?file=install.sh&token=${token}" | sudo bash`;
 
   const downloadInstaller = async (token: string, name: string) => {
