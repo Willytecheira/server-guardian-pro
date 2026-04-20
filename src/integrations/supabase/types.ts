@@ -14,6 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_rule_state: {
+        Row: {
+          last_alert_id: string | null
+          rule_id: string
+          server_id: string
+          triggered_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          last_alert_id?: string | null
+          rule_id: string
+          server_id: string
+          triggered_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          last_alert_id?: string | null
+          rule_id?: string
+          server_id?: string
+          triggered_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_rule_state_last_alert_id_fkey"
+            columns: ["last_alert_id"]
+            isOneToOne: false
+            referencedRelation: "alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_rule_state_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "alert_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_rule_state_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "servers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_rules: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          enabled: boolean
+          id: string
+          metric: string
+          name: string
+          operator: string
+          severity: string
+          threshold: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number
+          enabled?: boolean
+          id?: string
+          metric: string
+          name: string
+          operator?: string
+          severity?: string
+          threshold?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          enabled?: boolean
+          id?: string
+          metric?: string
+          name?: string
+          operator?: string
+          severity?: string
+          threshold?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alerts: {
         Row: {
           created_at: string
@@ -227,6 +312,27 @@ export type Database = {
           timeout_ms?: number
           updated_at?: string
           url?: string
+        }
+        Relationships: []
+      }
+      notification_settings: {
+        Row: {
+          id: number
+          telegram_chat_id: string | null
+          telegram_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          id: number
+          telegram_chat_id?: string | null
+          telegram_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          telegram_chat_id?: string | null
+          telegram_enabled?: boolean
+          updated_at?: string
         }
         Relationships: []
       }
