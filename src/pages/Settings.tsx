@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Copy, Plus, Trash2, KeyRound } from "lucide-react";
+import { Copy, Plus, Trash2, KeyRound, Download, Terminal } from "lucide-react";
 import { toast } from "sonner";
 
 interface ServerRow {
@@ -16,7 +16,9 @@ interface ServerRow {
   created_at: string;
 }
 
-const INGEST_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ingest-metrics`;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const INGEST_URL = `${SUPABASE_URL}/functions/v1/ingest-metrics`;
+const INSTALLER_URL = `${SUPABASE_URL}/functions/v1/agent-installer`;
 
 const Settings = () => {
   const [name, setName] = useState("");
@@ -74,11 +76,19 @@ const Settings = () => {
     toast.success(label);
   };
 
-  const installCommand = (token: string) =>
-    `curl -sSL ${INGEST_URL} \\
-  -H "x-ingest-token: ${token}" \\
-  -H "Content-Type: application/json" \\
-  -d '{"hostname":"$(hostname)","metrics":{"cpu_percent":12.3,"ram_percent":45.6,"disk_percent":30.1}}'`;
+  const installOneLiner = (token: string) =>
+    `curl -fsSL "${INSTALLER_URL}?file=install.sh&token=${token}" | sudo bash`;
+
+  const downloadInstaller = async (token: string, name: string) => {
+    const res = await fetch(`${INSTALLER_URL}?file=install.sh&token=${token}`);
+    const text = await res.text();
+    const blob = new Blob([text], { type: "text/x-shellscript" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `install-${name.replace(/[^a-z0-9-]/gi, "_")}.sh`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-4xl">
@@ -194,18 +204,51 @@ const Settings = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="text-xs">Comando de prueba (curl)</Label>
-                  <div className="flex items-start gap-2 mt-1">
+                  <Label className="text-xs flex items-center gap-1.5">
+                    <Terminal className="h-3.5 w-3.5" /> Instalación en un comando
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1 mb-2">
+                    Ejecútalo como root en el servidor. Instala Python, psutil, descarga el agente y lo registra como servicio systemd (<code className="text-[10px]">server-monitor.service</code>). Reporta cada 30s con métricas de CPU/RAM/disco/red/load + Docker.
+                  </p>
+                  <div className="flex items-start gap-2">
                     <pre className="flex-1 text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap break-all">
-                      {installCommand(r.ingest_token)}
+                      {installOneLiner(r.ingest_token)}
                     </pre>
-                    <Button size="icon" variant="outline" onClick={() => copy(installCommand(r.ingest_token), "Comando copiado")}>
+                    <Button size="icon" variant="outline" onClick={() => copy(installOneLiner(r.ingest_token), "Comando copiado")}>
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    El script de agente completo (bash + cron) llegará en la Fase 2.
-                  </p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <Button size="sm" variant="secondary" onClick={() => downloadInstaller(r.ingest_token, r.name)}>
+                      <Download className="h-3.5 w-3.5" />
+                      Descargar install.sh
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`${INSTALLER_URL}?file=agent.py`} target="_blank" rel="noreferrer">
+                        Ver agent.py
+                      </a>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`${INSTALLER_URL}?file=server-monitor.service&token=${r.ingest_token}`} target="_blank" rel="noreferrer">
+                        Ver service unit
+                      </a>
+                    </Button>
+                  </div>
+                  <details className="mt-3 text-xs">
+                    <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                      Comandos útiles tras instalar
+                    </summary>
+                    <pre className="bg-muted p-3 rounded mt-2 overflow-auto">{`# ver logs en vivo
+journalctl -u server-monitor -f
+
+# reiniciar
+systemctl restart server-monitor
+
+# desinstalar
+systemctl disable --now server-monitor
+rm -rf /opt/server-monitor /etc/systemd/system/server-monitor.service
+systemctl daemon-reload`}</pre>
+                  </details>
                 </div>
               </CardContent>
             </Card>
