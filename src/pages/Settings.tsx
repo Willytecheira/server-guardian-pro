@@ -214,49 +214,60 @@ sudo MONITOR_TOKEN=${token} ./install.sh`;
                 </div>
                 <div>
                   <Label className="text-xs flex items-center gap-1.5">
-                    <Terminal className="h-3.5 w-3.5" /> Instalación en un comando
+                    <Terminal className="h-3.5 w-3.5" /> Instalación recomendada (git clone)
                   </Label>
                   <p className="text-xs text-muted-foreground mt-1 mb-2">
-                    Ejecútalo como root en el servidor. Instala Python, psutil, descarga el agente y lo registra como servicio systemd (<code className="text-[10px]">server-monitor.service</code>). Reporta cada 30s con métricas de CPU/RAM/disco/red/load + Docker.
+                    Clona el repo en el servidor y ejecuta el instalador con tu token. Configura un servicio systemd <code className="text-[10px]">server-guardian.service</code> que reporta cada 30s con métricas de CPU/RAM/disco/red/load + Docker.
                   </p>
                   <div className="flex items-start gap-2">
-                    <pre className="flex-1 text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap break-all">
-                      {installOneLiner(r.ingest_token)}
-                    </pre>
-                    <Button size="icon" variant="outline" onClick={() => copy(installOneLiner(r.ingest_token), "Comando copiado")}>
+                    <pre className="flex-1 text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap break-all">{gitInstall(r.ingest_token)}</pre>
+                    <Button size="icon" variant="outline" onClick={() => copy(gitInstall(r.ingest_token), "Comando copiado")}>
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    <Button size="sm" variant="secondary" onClick={() => downloadInstaller(r.ingest_token, r.name)}>
-                      <Download className="h-3.5 w-3.5" />
-                      Descargar install.sh
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`${INSTALLER_URL}?file=agent.py`} target="_blank" rel="noreferrer">
-                        Ver agent.py
-                      </a>
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`${INSTALLER_URL}?file=server-monitor.service&token=${r.ingest_token}`} target="_blank" rel="noreferrer">
-                        Ver service unit
-                      </a>
-                    </Button>
+                  <div className="mt-3">
+                    <Label className="text-xs">Actualizar el agente más adelante</Label>
+                    <div className="flex items-start gap-2 mt-1">
+                      <pre className="flex-1 text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap break-all">{updateCommand}</pre>
+                      <Button size="icon" variant="outline" onClick={() => copy(updateCommand, "Copiado")}>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                   <details className="mt-3 text-xs">
                     <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-                      Comandos útiles tras instalar
+                      Alternativa sin git (curl | bash) y otros comandos
                     </summary>
-                    <pre className="bg-muted p-3 rounded mt-2 overflow-auto">{`# ver logs en vivo
-journalctl -u server-monitor -f
+                    <div className="mt-2 space-y-3">
+                      <div>
+                        <Label className="text-xs">Instalación con curl (descarga desde la edge function)</Label>
+                        <div className="flex items-start gap-2 mt-1">
+                          <pre className="flex-1 text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap break-all">{curlInstall(r.ingest_token)}</pre>
+                          <Button size="icon" variant="outline" onClick={() => copy(curlInstall(r.ingest_token), "Copiado")}>
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="secondary" onClick={() => downloadInstaller(r.ingest_token, r.name)}>
+                          <Download className="h-3.5 w-3.5" />
+                          Descargar install.sh
+                        </Button>
+                        <Button size="sm" variant="outline" asChild>
+                          <a href={REPO_URL.replace(/\.git$/, "")} target="_blank" rel="noreferrer">
+                            Ver repositorio
+                          </a>
+                        </Button>
+                      </div>
+                      <pre className="bg-muted p-3 rounded overflow-auto">{`# logs en vivo
+journalctl -u server-guardian -f
 
 # reiniciar
-systemctl restart server-monitor
+sudo systemctl restart server-guardian
 
 # desinstalar
-systemctl disable --now server-monitor
-rm -rf /opt/server-monitor /etc/systemd/system/server-monitor.service
-systemctl daemon-reload`}</pre>
+sudo /opt/server-guardian/agent/uninstall.sh`}</pre>
+                    </div>
                   </details>
                 </div>
               </CardContent>
