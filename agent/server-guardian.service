@@ -1,0 +1,18 @@
+[Unit]
+Description=Server Guardian Pro Agent
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/server-guardian/agent.env
+WorkingDirectory=/opt/server-guardian/agent
+ExecStart=/usr/bin/python3 /opt/server-guardian/agent/agent.py
+Restart=always
+RestartSec=10
+User=root
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
