@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.agent-installer]
 verify_jwt = false
+
+[functions.cleanup-old-data]
+verify_jwt = false
