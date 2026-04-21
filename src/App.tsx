@@ -12,6 +12,7 @@ import Servers from "@/pages/Servers";
 import ServerDetail from "@/pages/ServerDetail";
 import Settings from "@/pages/Settings";
 import Alerts from "@/pages/Alerts";
+import AlertRules from "@/pages/AlertRules";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/servers" element={<Protected><Servers /></Protected>} />
             <Route path="/servers/:id" element={<Protected><ServerDetail /></Protected>} />
             <Route path="/alerts" element={<Protected><Alerts /></Protected>} />
+            <Route path="/alerts/rules" element={<Protected><AlertRules /></Protected>} />
             <Route path="/settings" element={<Protected><Settings /></Protected>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
