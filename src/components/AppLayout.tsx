@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Activity, Server, Bell, LogOut, Settings } from "lucide-react";
+import { Activity, Server, Bell, LogOut, Settings, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ const nav = [
   { to: "/", label: "Dashboard", icon: Activity },
   { to: "/servers", label: "Servidores", icon: Server },
   { to: "/alerts", label: "Alertas", icon: Bell },
+  { to: "/alerts/rules", label: "Reglas", icon: SlidersHorizontal },
   { to: "/settings", label: "Configuración", icon: Settings },
 ];
 
