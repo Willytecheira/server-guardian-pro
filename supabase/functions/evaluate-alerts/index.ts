@@ -43,9 +43,9 @@ function compare(value: number, op: Rule["operator"], threshold: number): boolea
 
 async function sendTelegram(chatId: string, text: string) {
   const lk = Deno.env.get("LOVABLE_API_KEY");
-  const tk = Deno.env.get("TELEGRAM_API_KEY");
+  const tk = Deno.env.get("TELEGRAM_API_KEY") ?? Deno.env.get("TELEGRAM_API_KEY_1");
   if (!lk || !tk) {
-    console.warn("Telegram secrets missing");
+    console.warn("Telegram secrets missing", { hasLk: !!lk, hasTk: !!tk });
     return;
   }
   const resp = await fetch(`${TG_GATEWAY}/sendMessage`, {
